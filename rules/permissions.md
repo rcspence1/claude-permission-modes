@@ -6,6 +6,10 @@
 - `/comfort` — only reading auto-approved. Everything else asks first. All CLAUDE.md rules at full strength.
 - Default (no mode active) — uses settings.json permissions as-is.
 
+## The Bash Sandbox (why sport needs more than a permissions allow-list)
+
+Claude Code runs Bash commands inside an OS-level sandbox (macOS Seatbelt) that is SEPARATE from the permissions allow-list. `Bash(*)` does not control it. So sport mode also sets `"sandbox": {"enabled": true, "autoAllowBashIfSandboxed": true}` — sandbox stays on, commands inside it auto-approve, no prompts. Comfort uses `autoAllowBashIfSandboxed: false`. The sandbox setting is read at startup: if a running session still prompts after switching, run `/sandbox` → Auto-allow or restart. Network commands (git push/fetch, curl) leave the sandbox and still confirm — which is correct per the External Guard below.
+
 ## External Guard (NON-NEGOTIABLE — applies in ALL modes)
 
 Always confirm before executing any action that another human will see:

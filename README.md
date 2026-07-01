@@ -35,6 +35,22 @@ When you type `/sport`, Claude reads `settings.sport.json` and writes it to `set
 
 The `permissions.md` rule file teaches Claude the behavioral differences between modes (what to confirm, what to skip, what's never allowed).
 
+## The Sandbox (important)
+
+Claude Code has an **OS-level Bash sandbox** (macOS Seatbelt) that is a *separate layer* from the permissions allow-list. Even with `Bash` / `Bash(*)` allowed, the sandbox will still prompt for approval on commands that use shell variables, `[ -f ]` tests, tilde-in-assignment, or command substitution. `Bash(*)` **cannot** override it — they control different things.
+
+Sport mode fixes this by setting, in `settings.sport.json`:
+
+```json
+"sandbox": { "enabled": true, "autoAllowBashIfSandboxed": true }
+```
+
+This keeps the sandbox protection **on** but auto-approves commands that run inside it — no prompts. Comfort mode sets `autoAllowBashIfSandboxed: false` to restore prompting.
+
+Two gotchas:
+- **The sandbox setting is read at Claude Code startup.** Switching modes in an already-running session won't change it live. Run `/sandbox` → **Auto-allow**, or restart Claude Code. It's automatic from the next session on.
+- **Network commands step outside the sandbox** (e.g. `git push`, `git fetch`, `curl`), so they still go through the normal approval flow. This is expected and matches the External Guard.
+
 ## Safety
 
 Even in sport mode, these are always blocked:
